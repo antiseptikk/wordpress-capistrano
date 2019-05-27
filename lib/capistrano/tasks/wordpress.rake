@@ -114,8 +114,10 @@ namespace :wordpress do
     task :pull do
       run_locally do
         roles(:web).each do |role|
+          puts role.netssh_options[:port]
+          port = role.netssh_options[:port] || 22
           user = role.user + "@" if !role.user.nil?
-          execute :rsync, "-avzO #{user}#{role.hostname}:#{release_path}/#{fetch(:wp_uploads)}/ #{fetch(:wp_uploads)}"
+          execute :rsync, "-avz --rsh=ssh --progress -e 'ssh -p #{port}' #{user}#{role.hostname}:#{release_path}/#{fetch(:wp_uploads)}/ #{fetch(:wp_uploads)}"
         end
       end
     end
@@ -124,8 +126,10 @@ namespace :wordpress do
     task :push do
       run_locally do
         roles(:web).each do |role|
+          puts role.netssh_options[:port]
+          port = role.netssh_options[:port] || 22
           user = role.user + "@" if !role.user.nil?
-          execute :rsync, "-avzO #{fetch(:wp_uploads)}/ #{user}#{role.hostname}:#{release_path}/#{fetch(:wp_uploads)}"
+          execute :rsync, "-avz --rsh=ssh --progress -e 'ssh -p #{port}' #{fetch(:wp_uploads)}/ #{user}#{role.hostname}:#{release_path}/#{fetch(:wp_uploads)}"
         end
       end
     end
